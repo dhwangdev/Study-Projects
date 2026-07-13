@@ -7,24 +7,65 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // stops the browser's default full-page reload on submit
+    e.preventDefault(); 
     setError("");
 
-    if (email.trim() === "" || password.trim() === "") {
-      setError("Please enter your email and password.");
-      return;
-    }
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
 
-  
-    console.log("Login button clicked", { email, password, rememberMe });
+    if (!trimmedEmail || !trimmedPassword) {
+    setError("Please enter your email and password.");
+    return;
+  }
+
+    if (!trimmedEmail.includes("@")) {
+    setError("Please enter a valid email address.");
+    return;
+  }
+
+    setIsLoading(true);
+
+    try {
+    /*
+      To call backend later
+      Example:
+      await login({
+          email: trimmedEmail,
+          password: trimmedPassword
+      });
+
+    */
+
+    console.log("Login button clicked", {
+      email: trimmedEmail,
+      password: trimmedPassword,
+      rememberMe
+    });
+  }
+
+    catch (err) {
+    setError("Unable to log in. Please try again.");
+  }
+
+  finally {
+
+    // Whether login succeeds or fails,
+    // re-enable the button.
+    setIsLoading(false);
+
+  }
+
+};
+    
   };
 
   
   const handleSocialLogin = (provider: "kakao" | "google") => {
     console.log(`${provider} login clicked`);
-    // TODO: replace with real OAuth redirect / API call
+    // TODO: 백엔드 API 필요 (replace with real OAuth redirect / API call)
   };
 
   return (
@@ -89,8 +130,10 @@ function LoginPage() {
             <input
               id="email"
               type="email"
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
             />
           </div>
@@ -100,14 +143,20 @@ function LoginPage() {
             <input
               id="password"
               type="password"
+              autoComplete="current-password"
+              required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
             />
           </div>
 
-          <label className="checkbox-field">
+          <label 
+            className="checkbox-field"
+            htmlFor="rememberMe"
+            >
             <input
+              id="rememberMe"
               type="checkbox"
               checked={rememberMe} 
               onChange={(e) => setRememberMe(e.target.checked)}
@@ -115,8 +164,19 @@ function LoginPage() {
             로그인 상태 유지
           </label>
 
-          <button type="submit" className="btn btn--primary">
+          <button 
+            type="submit" 
+            className="btn btn--primary"
+            disabled={isLoading}        
+            >
             Login
+            disabled={isLoading}
+          >
+            {
+              isLoading
+                ? "Logging in..."
+                : "Login"
+            }
           </button>
         </form>
 
